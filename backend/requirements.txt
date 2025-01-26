@@ -2,9 +2,16 @@ fastapi
 uvicorn
 torch
 torchaudio
+<<<<<<< HEAD
 transformers
+=======
+>>>>>>> 0f5ba32ef967ffaa9e1e716548ddf19854a50153
 datasets
 whisper
 rouge-score
 yt-dlp
+<<<<<<< HEAD
 python-multipart
+=======
+python-multipart
+>>>>>>> 0f5ba32ef967ffaa9e1e716548ddf19854a50153
