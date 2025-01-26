@@ -1,7 +1,6 @@
 import whisper
 from pathlib import Path
 
-
 class TranscriptionService:
     def __init__(self, model_name: str = "base"):
         """
@@ -16,8 +15,12 @@ class TranscriptionService:
         :param file_path: Ścieżka do pliku wideo.
         :return: Tekst transkrypcji.
         """
+
         if not Path(file_path).is_file():
             raise FileNotFoundError(f"Plik {file_path} nie istnieje.")
 
-        result = self.model.transcribe(file_path)
-        return result["text"]
+        try:
+            result = self.model.transcribe(str(Path(file_path).resolve()))
+            return result["text"]
+        except Exception as e:
+            raise

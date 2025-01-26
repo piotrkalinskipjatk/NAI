@@ -2,20 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --container-bg: rgba(255, 255, 255, 0.7);
+  --button-bg: #007bff;
+  --button-text: #ffffff;
+  --placeholder-color: #000000;
+  --input-bg: #ffffff;
+  --text-color: #3e3e3e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #121212;
+    --foreground: #e0e0e0;
+    --input-bg: #333333;
+    --input-border: #555555;
+    --input-text: #ffffff;
+    --button-bg: #0d6efd;
+    --button-text: #ffffff;
+    --container-bg: rgba(0, 0, 0, 0.7);
+    --placeholder-color: #ffffff;
+    --text-color: #e0e0e0;
+
   }
+}
+
+input::placeholder {
+  color: var(--placeholder-color);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(to top, #2bd9ff, #06398f);
+  background-size: cover;
+  background-attachment: fixed;
 }
+
+
+.dropzone {
+  border: 2px dashed #0070f3;
+  border-radius: 5px;
+  padding: 20px;
+  width: 100%;
+  text-align: center;
+  margin: 20px 0;
+  cursor: pointer;
+}
+
+
+
+
