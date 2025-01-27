@@ -8,5 +8,4 @@ whisper
 rouge-score
 yt-dlp
 python-multipart
-
-
+pydantic

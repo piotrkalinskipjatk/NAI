@@ -1,56 +1,79 @@
-import React, { useEffect } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload } from '@fortawesome/free-solid-svg-icons';
-import { BarLoader } from 'react-spinners';
-import {useLoading} from "@/app/context/GlobalContext";
+import React, { useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUpload, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
+import { useGlobalContext } from "@/app/context/GlobalContext";
 import ImageForm from "@/components/ImageForm";
+import ImageDisplay from "@/components/ImageDisplay";
 
+const Uploader = () => {
+    const { uploadAndFetchImage, setUploadError } = useGlobalContext();
+    const [file, setFile] = useState(null);
 
-const Uploader = ({ onFileUpload }) => {
-  const { isLoaded, setLoading } = useLoading();
+    const { getRootProps, getInputProps } = useDropzone({
+        accept: "video/mp4",
+        onDrop: (acceptedFiles) => {
+            setFile(acceptedFiles[0]);
+        },
+    });
 
-useEffect(() => {
-  const timer = setTimeout(() => {
-    setLoading(true);
-  }, 200);
+    const handleFormSubmit = async (formParameters) => {
+        setUploadError(null);
 
-  return () => clearTimeout(timer);
-}, [setLoading]);
+        if (!file) {
+            setUploadError("Please add a file before submitting.");
+            return;
+        }
 
+        try {
+            await uploadAndFetchImage(file, formParameters);
+            setFile(null);
+        } catch (error) {
+            console.error("Error during submission:", error);
+        }
+    };
 
-  const { getRootProps, getInputProps } = useDropzone({
-    accept: 'video/mp4',
-    onDrop: acceptedFiles => {
-      onFileUpload(acceptedFiles[0]);
-    }
-  });
+    return (
+        <div className="flex flex-row gap-8">
+            <div className="left-column flex flex-col space-y-6">
+                <div
+                    {...getRootProps({
+                        className: `cursor-pointer rounded-lg p-10 text-center border-4 border-dashed ${
+                            file ? "border-green-500" : "border-blue-500 hover:border-blue-700"
+                        }`,
+                    })}
+                >
+                    <input {...getInputProps()} />
+                    {file ? (
+                        <div className="text-center">
+                            <FontAwesomeIcon
+                                icon={faCheckCircle}
+                                className="text-2xl text-green-500 mr-2"
+                            />
+                            <p className="text-lg text-green-600">
+                                File uploaded: {file.name}
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            <FontAwesomeIcon
+                                icon={faUpload}
+                                className="text-2xl text-blue-500 mr-2"
+                            />
+                            <p className="text-lg" style={{ color: "var(--text-color)" }}>
+                                Drag and drop a file here, or click to select a file.
+                            </p>
+                        </>
+                    )}
+                </div>
+                <ImageForm onSubmit={handleFormSubmit} isFileUploaded={!!file} />
+            </div>
 
-  return (
-      <div>
-          <div {...getRootProps({
-              className: `cursor-pointer rounded-lg p-10 text-center relative mt-4 mb-4 ${isLoaded ? 'border-4 border-dashed border-blue-500 hover:border-blue-700' : 'border-none'}`
-          })}>
-
-              <input {...getInputProps()} />
-              {!isLoaded && (
-                  <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
-                      <BarLoader color="#0070f3"/>
-                  </div>
-              )}
-
-              {isLoaded && (
-                  <>
-                      <FontAwesomeIcon icon={faUpload} className="text-2xl text-blue-500 mr-2"/>
-                      <p className="text-lg" style={{color: 'var(--text-color)'}}>Przeciągnij i upuść plik tutaj, lub
-                          kliknij aby wybrać plik.</p>
-                  </>
-              )}
-          </div>
-
-          <ImageForm/>
-      </div>
-  );
+            <div className="right-column pl-4">
+                <ImageDisplay />
+            </div>
+        </div>
+    );
 };
 
 export default Uploader;
