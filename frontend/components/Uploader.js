@@ -7,7 +7,7 @@ import ImageForm from "@/components/ImageForm";
 import ImageDisplay from "@/components/ImageDisplay";
 
 const Uploader = () => {
-    const { uploadAndFetchImage, setUploadError } = useGlobalContext();
+    const { uploadAndFetchImage, setUploadError, setImageUrl, setIsLoaded } = useGlobalContext();
     const [file, setFile] = useState(null);
 
     const { getRootProps, getInputProps } = useDropzone({
@@ -26,7 +26,11 @@ const Uploader = () => {
         }
 
         try {
+            setImageUrl(null);
+            setIsLoaded(true);
+
             await uploadAndFetchImage(file, formParameters);
+
             setFile(null);
         } catch (error) {
             console.error("Error during submission:", error);

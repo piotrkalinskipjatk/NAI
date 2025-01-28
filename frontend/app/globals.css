@@ -17,7 +17,7 @@
   :root {
     --background: #121212;
     --foreground: #e0e0e0;
-    --input-bg: #333333;
+    --input-bg: #1a2d39;
     --input-border: #555555;
     --input-text: #ffffff;
     --button-bg: #0d6efd;
@@ -53,6 +53,7 @@ body {
 
 .left-column {
   width: 300px;
+  min-width: 300px;
 }
 
 .right-column {
@@ -61,7 +62,7 @@ body {
 
 .left-column .form-element {
   width: 100%;
-  max-width: 300px;
+  max-width: 450px;
 }
 
 .image-container {
@@ -74,7 +75,13 @@ body {
   justify-content: center;
   align-items: center;
   position: relative;
+  transition: border 0.3s ease;
 }
+
+.image-container.loaded {
+  border: none;
+}
+
 
 .image-container img {
   max-height: 100%;

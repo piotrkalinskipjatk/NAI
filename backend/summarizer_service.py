@@ -1,12 +1,14 @@
 from transformers import pipeline
 from pathlib import Path
+from torch import cuda
 
 class SummarizerService:
     def __init__(self, model_name: str = "sshleifer/distilbart-cnn-12-6"):
         """
         Inicjalizuje usługę podsumowań, ładując model.
         """
-        self.summarizer = pipeline("summarization", model=model_name)
+        device = 0 if cuda.is_available() else -1
+        self.summarizer = pipeline("summarization", model=model_name, device=device)
         self.prompt = (
             "Create a concise and engaging summary that captures the essential features and visual "
             "elements of the topic. Describe its main attributes in a way that can be visually "

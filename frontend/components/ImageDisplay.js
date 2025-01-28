@@ -17,12 +17,12 @@ const ImageDisplay = () => {
     };
 
     return (
-        <div className="image-container">
+        <div className={`image-container ${imageUrl ? "loaded" : ""}`}>
             {!imageUrl ? (
                 <div className="flex flex-col justify-center items-center">
                     {isLoaded ? (
                         <>
-                            <BarLoader color="#0070f3" />
+                            <BarLoader color="#0070f3"/>
                             <p className="text-center mt-4 text-gray-600 text-sm">
                                 Generating image in progress... this may take up to few minutes.
                             </p>

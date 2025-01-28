@@ -6,7 +6,7 @@ class TranscriptionService:
         """
         Inicjalizuje usługę transkrypcji, ładując model Whisper.
         """
-        self.model = whisper.load_model(model_name)
+        self.model = whisper.load_model(model_name, device="cuda")
 
     def transcribe(self, file_path: str) -> str:
         """

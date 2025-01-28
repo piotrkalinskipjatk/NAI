@@ -52,6 +52,8 @@ export const GlobalProvider = ({ children }) => {
                 imageUrl,
                 uploadError,
                 setUploadError,
+                setImageUrl,
+                setIsLoaded,
             }}
         >
             {children}
