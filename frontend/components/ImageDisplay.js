@@ -7,6 +7,15 @@ import { BarLoader } from "react-spinners";
 const ImageDisplay = () => {
     const { imageUrl, isLoaded } = useGlobalContext();
 
+    const downloadImage = () => {
+      if (imageUrl) {
+          const link = document.createElement("a");
+          link.href = imageUrl;
+          link.download = "generated_thumbnail.jpg";
+          link.click();
+      }
+    };
+
     return (
         <div className="image-container">
             {!imageUrl ? (
@@ -29,7 +38,8 @@ const ImageDisplay = () => {
                 <img
                     src={imageUrl}
                     alt="Generated"
-                    className="rounded-md shadow-md"
+                    className="rounded-md shadow-md cursor-pointer"
+                    onClick={downloadImage}
                 />
             )}
         </div>

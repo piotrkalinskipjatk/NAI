@@ -20,7 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Ładowanie modelu Stable Diffusion v1.5 z Hugging Face
+# Ładowanie modelu Stable Diffusion XL 1.0 z Hugging Face
 model_id = "stabilityai/stable-diffusion-xl-base-1.0"
 pipe = DiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
 pipe = pipe.to("cuda")
@@ -49,7 +49,7 @@ async def process_file(
 ):
     """
     Endpoint obsługujący przetwarzanie pliku MP4, generowanie transkrypcji i obrazu
-    przy użyciu modelu FLUX.
+    przy użyciu modelu Stable Diffusion XL 1.0.
     """
     try:
         print(f"Received file: {file.filename}")
@@ -82,7 +82,7 @@ async def process_file(
         summary = summarizer_service.summarize(temp_transcription_path)
         print(f"Summary: {summary}")
 
-        # Generowanie obrazu przy użyciu FLUX
+        # Generowanie obrazu przy użyciu Stable Diffusion
         prompt = f"{summary} in Style: {style}, in Color: {color}."
         image_path = Path(f"images/generated_image.jpg").resolve()
         image_path.parent.mkdir(parents=True, exist_ok=True)
