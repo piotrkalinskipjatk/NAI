@@ -3,7 +3,7 @@
 Aplikacja do generowania miniaturek do filmów na YouTube na podstawie przesłanego filmu. Projekt wykorzystuje modele AI do następujących zadań:
 
 1. **Transkrypcja wideo** - Tworzenie transkrypcji tekstowej z przesłanego pliku wideo.
-2. **Strszczanie transkrypcji** - Generowanie zwięzłego streszczenia z transkrypcji wideo.
+2. **Streszczanie transkrypcji** - Generowanie zwięzłego streszczenia z transkrypcji wideo.
 3. **Generowanie grafiki miniaturki** - Tworzenie obrazu miniaturki na podstawie wygenerowanego streszczenia i zadanych parametrów wizualnych (styl i kolor)
 
 Projekt składa się z:
