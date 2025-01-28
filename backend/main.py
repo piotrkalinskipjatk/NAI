@@ -6,9 +6,8 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from fastapi import Form
 from fastapi.middleware.cors import CORSMiddleware
-
-
-
+from diffusers import StableDiffusionPipeline
+import torch
 app = FastAPI()
 transcription_service = TranscriptionService()
 summarizer_service = SummarizerService()
@@ -20,6 +19,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Ładowanie modelu Stable Diffusion v1.5 z Hugging Face
+model_id = "sd-legacy/stable-diffusion-v1-5"
+pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+pipe = pipe.to("cuda")
 
 class FileMetadata(BaseModel):
     style: str
@@ -44,48 +48,65 @@ async def process_file(
     color: str = Form(...)
 ):
     """
-    Endpoint obsługujący przetwarzanie pliku MP4 i dodatkowe pola style i color,
-    zwracający obraz z folderu /images.
-
-    :param file: Plik MP4 przesłany przez użytkownika.
-    :param style: Styl używany do generowania obrazu.
-    :param color: Kolor używany do generowania obrazu.
-    :return: Ścieżka do obrazu lub obraz do pobrania.
+    Endpoint obsługujący przetwarzanie pliku MP4, generowanie transkrypcji i obrazu
+    przy użyciu modelu FLUX.
     """
     try:
+        print(f"Received file: {file.filename}")
+        print(f"Style: {style}")
+        print(f"Color: {color}")
+
+        # Przechowywanie przesłanego pliku
         sanitized_filename = "".join(c for c in Path(file.filename).stem if c.isalnum()) + ".mp4"
         temp_video_path = str(Path(f"temp_{sanitized_filename}").resolve())
         temp_transcription_path = str(Path(f"temp_{Path(sanitized_filename).stem}.txt").resolve())
 
+        print(f"Temporary video path: {temp_video_path}")
+
         with open(temp_video_path, "wb") as buffer:
             buffer.write(await file.read())
+
+        print("File saved successfully.")
 
         if not Path(temp_video_path).is_file():
             raise HTTPException(status_code=500, detail="Temporary video file was not created.")
 
+        # Transkrypcja wideo
         transcription = transcription_service.transcribe(temp_video_path)
+        print("Transcription completed.")
 
         with open(temp_transcription_path, "w", encoding="utf-8") as text_file:
             text_file.write(transcription)
 
+        # Generowanie podsumowania
+        summary = summarizer_service.summarize(temp_transcription_path)
+        print(f"Summary: {summary}")
 
-        image_name = "generated_image.jpg"
-        image_path = Path(f"images/{image_name}").resolve()
+        # Generowanie obrazu przy użyciu FLUX
+        prompt = f"{summary} in Style: {style}, in Color: {color}."
+        image_path = Path(f"images/generated_image.jpg").resolve()
+        image_path.parent.mkdir(parents=True, exist_ok=True)
 
+        print(f"Prompt: {prompt}")
+
+        # Generowanie obrazu
+        image = pipe(prompt).images[0]
+        image.save(image_path)
+
+        print(f"Image saved at {image_path}")
+
+        # Usuwanie tymczasowych plików
         Path(temp_video_path).unlink()
         Path(temp_transcription_path).unlink()
 
-        if not image_path.is_file():
-            raise HTTPException(status_code=500, detail="Generated image was not found.")
-
+        # Zwracanie wygenerowanego obrazu
         return FileResponse(
-            path=image_path,
+            path=f"{image_path}",
             media_type="image/jpeg",
-            filename=image_name
+            filename="generated_image.jpg"
         )
 
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during processing: {str(e)}")
-

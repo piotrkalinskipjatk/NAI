@@ -9,3 +9,4 @@ rouge-score
 yt-dlp
 python-multipart
 pydantic
+diffusers
