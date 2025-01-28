@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from fastapi import Form
 from fastapi.middleware.cors import CORSMiddleware
-from diffusers import StableDiffusionPipeline
+from diffusers import DiffusionPipeline
 import torch
 app = FastAPI()
 transcription_service = TranscriptionService()
@@ -21,8 +21,8 @@ app.add_middleware(
 )
 
 # Ładowanie modelu Stable Diffusion v1.5 z Hugging Face
-model_id = "sd-legacy/stable-diffusion-v1-5"
-pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+model_id = "stabilityai/stable-diffusion-xl-base-1.0"
+pipe = DiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, use_safetensors=True, variant="fp16")
 pipe = pipe.to("cuda")
 
 class FileMetadata(BaseModel):
@@ -90,7 +90,8 @@ async def process_file(
         print(f"Prompt: {prompt}")
 
         # Generowanie obrazu
-        image = pipe(prompt).images[0]
+        pipe.enable_sequential_cpu_offload()
+        image = pipe(prompt=prompt).images[0]
         image.save(image_path)
 
         print(f"Image saved at {image_path}")
