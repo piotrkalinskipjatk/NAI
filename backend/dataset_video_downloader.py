@@ -5,10 +5,16 @@ from yt_dlp import YoutubeDL
 OUTPUT_VIDEO_DIR = "videos"
 OUTPUT_TRANSCRIPTION_DIR = "transcriptions"
 
+# Tworzenie katalogów, jeśli nie istnieją
 os.makedirs(OUTPUT_VIDEO_DIR, exist_ok=True)
 os.makedirs(OUTPUT_TRANSCRIPTION_DIR, exist_ok=True)
 
 def download_video(video_url, output_path):
+    """
+    Pobiera film z YouTube na podstawie podanego URL i zapisuje go w określonym katalogu.
+    :param video_url: Adres URL filmu YouTube.
+    :param output_path: Ścieżka do katalogu, w którym film ma zostać zapisany.
+    """
     ydl_opts = {
         'format': 'bestvideo+bestaudio/best',
         'merge_output_format': 'mp4',
@@ -19,8 +25,10 @@ def download_video(video_url, output_path):
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
 
+# Pobranie zbioru danych zawierającego transkrypcje wideo
 dataset = load_dataset('jamescalam/youtube-transcriptions', split='train')
 
+# Przechowywanie unikalnych filmów i ich transkrypcji
 unique_videos = {}
 for record in dataset:
     video_id = record['video_id']
@@ -32,6 +40,7 @@ for record in dataset:
         }
     unique_videos[video_id]["transcriptions"].append(record['text'])
 
+# Pobranie maksymalnie 10 filmów z transkrypcjami
 for i, (video_id, video_data) in enumerate(unique_videos.items()):
     if i >= 10:
         break

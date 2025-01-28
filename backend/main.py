@@ -12,7 +12,7 @@ transcription_service = TranscriptionService()
 summarizer_service = SummarizerService()
 image_service = ImageService()
 
-
+# Middleware z konfiguracją CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -38,7 +38,13 @@ async def process_file(
     color: str = Form(...)
 ):
     """
-    Endpoint obsługujący przetwarzanie pliku MP4, generowanie transkrypcji, podsumowania i obrazu.
+    Endpoint obsługujący przetwarzanie pliku MP4 i dodatkowe pola style i color,
+    zwracający wygenerowany obraz z folderu /images.
+
+    :param file: Plik MP4 przesłany przez użytkownika.
+    :param style: Styl używany do generowania obrazu.
+    :param color: Kolor używany do generowania obrazu.
+    :return: Ścieżka do obrazu lub obraz do pobrania.
     """
     try:
         # Zapisanie pliku wideo
