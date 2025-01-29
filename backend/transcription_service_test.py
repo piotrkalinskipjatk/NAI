@@ -65,9 +65,35 @@ def calculate_additional_metrics(y_true, y_pred):
     :param y_pred: Lista przewidywanych etykiet (tekstów wygenerowanych).
     :return: F1, recall i accuracy.
     """
-    f1 = f1_score(y_true, y_pred, average='weighted')
-    recall = recall_score(y_true, y_pred, average='weighted')
-    accuracy = accuracy_score(y_true, y_pred)
+    all_f1 = []
+    all_recall = []
+    all_accuracy = []
+
+    for true_sentence, pred_sentence in zip(y_true, y_pred):
+        true_tokens = true_sentence.split()
+        pred_tokens = pred_sentence.split()
+
+        # Znalezienie unikalnych tokenów w zbiorze referencyjnym i przewidywanym
+        unique_tokens = list(set(true_tokens + pred_tokens))
+
+        # Zamiana tokenów na wektory binarne (one-hot encoding)
+        y_true_vector = [1 if token in true_tokens else 0 for token in unique_tokens]
+        y_pred_vector = [1 if token in pred_tokens else 0 for token in unique_tokens]
+
+        # Obliczanie metryk
+        f1 = f1_score(y_true_vector, y_pred_vector, zero_division=1)
+        recall = recall_score(y_true_vector, y_pred_vector, zero_division=1)
+        accuracy = accuracy_score(y_true_vector, y_pred_vector)
+
+        all_f1.append(f1)
+        all_recall.append(recall)
+        all_accuracy.append(accuracy)
+
+    # Średnia dla wszystkich próbek
+    f1 = sum(all_f1) / len(all_f1) if all_f1 else 0
+    recall = sum(all_recall) / len(all_recall) if all_recall else 0
+    accuracy = sum(all_accuracy) / len(all_accuracy) if all_accuracy else 0
+
     return f1, recall, accuracy
 
 def main():
@@ -90,16 +116,14 @@ def main():
     for i, sample in enumerate(dataset, start=1):
         try:
             print(f"Processing sample {i}/50")
-            # Wczytanie pliku audio
-            audio_data = BytesIO(sample["wav"]["bytes"])
-            waveform, sample_rate = torchaudio.load(audio_data)
+            audio_data = BytesIO(sample["wav"]["bytes"])  # Pobieranie danych audio
 
-            reference_text = sample["text"] # Tekst referencyjny
-
-            # Zapis tymczasowego pliku audio
+            # Zapis danych audio do pliku tymczasowego
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
-                torchaudio.save(temp_file.name, waveform, sample_rate)
+                temp_file.write(audio_data.getvalue())
                 temp_path = temp_file.name
+
+            reference_text = sample["text"]
 
             # Transkrypcja za pomocą Whisper
             predicted_text_whisper = transcription_service.transcribe(temp_path)
