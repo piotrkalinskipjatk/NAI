@@ -99,7 +99,7 @@ def calculate_additional_metrics(y_true, y_pred):
 def main():
     # Inicjalizacja usługi transkrypcji (Whisper)
     transcription_service = TranscriptionService(model_name="base")
-    # Lista modeli Wav2Vec2 do porównania
+    # Lista modeli do porównania
     wav2vec_models = ["facebook/wav2vec2-base-960h", "jonatasgrosman/wav2vec2-large-xlsr-53-english"]
 
     # Przygotowanie danych testowych
